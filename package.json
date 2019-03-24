@@ -1,0 +1,24 @@
+{
+  "name": "elemental-dapp",
+  "version": "0.1.0",
+  "description": "Basic dapp for timestamping document including best practises",
+  "main": "index.js",
+  "scripts": {
+    "test": "waffle && mocha",
+    "compile": "npx waffle",
+    "deploy": "node deploy.js",
+    "serve": "npx live-server dapp-vuejs",
+    "start": "npm run compile && npm run deploy && npm run serve"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "ethereum-waffle": "^2.0.7",
+    "ethers": "^4.0.27",
+    "live-server": "^1.2.1",
+    "mocha": "^6.0.2",
+    "openzeppelin-solidity": "^2.1.3"
+  }
+}
