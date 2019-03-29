@@ -12,8 +12,8 @@
 
 <div id="app">
   <h5>Bienvenue {{ nom }}</h5>
-  <button v-on:click="connectMetamask()">Connect</button> 
-
+  <button v-on:click="connectMetamask()">Connect to Metamask</button> 
+  <button v-on:click="connectLocally()">Connect to local node with browser wallet</button> 
   <section  v-show="connected">
     <p v-if="network">Current Network : {{network.name}} (n° {{network.chainId}})</sup></p>
 
@@ -47,7 +47,8 @@ var app = new Vue({
     contrat:{},
     recentDocuments:[],
     checkedDocDate:0,
-    lastDocument:{}
+    lastDocument:{},
+    signer:{}
   },
   beforeCreate: function () {
       fetch("/data.json")
@@ -61,6 +62,34 @@ var app = new Vue({
       this.addresses = await ethereum.enable()
       this.provider = await new ethers.providers.Web3Provider(ethereum)
       this.nom = this.addresses[0]
+      this.signer = this.provider.getSigner(this.addresses[0]);
+      this.connected = true
+      this.getNetwork()
+      this.getContract()
+    },
+    connectLocally: async function(){
+      let defaultPassword = "abc"
+      this.provider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
+      let walletStorage="mywallet"
+      let jsonValue=localStorage.getItem(walletStorage)
+      if(jsonValue){
+        try{
+          // this.signer = await ethers.Wallet.fromEncryptedJson(jsonValue, defaultPassword)
+          this.signer = JSON.parse(jsonValue)
+          console.log("Loaded from local storage")
+        }catch(e){
+          console.error("Wallet loading error")
+        }
+      }else{
+        this.signer = ethers.Wallet.createRandom()
+        console.log("Generated new wallet")
+        // let json  =  await this.signer.encrypt(defaultPassword)
+        let json = JSON.stringify(this.signer)
+        localStorage.setItem(walletStorage,json)
+      } 
+      console.log(this.signer)
+      this.signer =  new ethers.Wallet(this.signer.privateKey, this.provider)
+      this.nom = this.signer.address 
       this.connected = true
       this.getNetwork()
       this.getContract()
@@ -72,7 +101,7 @@ var app = new Vue({
     getContract: async function() {
       console.log(this.contractData)
       let Contrat=new ethers.Contract(this.contractData.address, this.contractData.interface.abi, this.provider)
-      this.contrat=await Contrat.connect(this.provider.getSigner(this.addresses[0]))      
+      this.contrat=await Contrat.connect(this.signer)      
 
     },
     getRecentDocuments:async function(){
