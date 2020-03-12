@@ -15,10 +15,10 @@
   "dependencies": {},
   "devDependencies": {
     "chai": "^4.2.0",
-    "ethereum-waffle": "^2.0.7",
-    "ethers": "^4.0.27",
+    "ethereum-waffle": "^2.3.2",
+    "ethers": "^4.0.45",
     "live-server": "^1.2.1",
-    "mocha": "^6.0.2",
-    "openzeppelin-solidity": "^2.1.3"
+    "mocha": "^6.2.2",
+    "openzeppelin-solidity": "^2.5.0"
   }
 }

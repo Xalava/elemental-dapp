@@ -11,19 +11,19 @@
 <body>
 
 <div id="app">
-  <h5>Bienvenue {{ nom }}</h5>
+  <h3>Bienvenue {{ nom }}</h3>
   <button v-on:click="connectMetamask()">Connect to Metamask</button> 
-  <button v-on:click="connectLocally()">Connect to local node with browser wallet</button> 
+  <!-- <button v-on:click="connectLocally()">Connect to local node with browser wallet</button>  -->
   <section  v-show="connected">
     <p v-if="network">Current Network : {{network.name}} (n° {{network.chainId}})</sup></p>
 
-    <h5>Recently added</h5>
+    <h3>Recently added</h3>
     <ol>
         <li v-for="document in recentDocuments">
-          {{ passage }}
+          {{ document }}
         </li>
     </ol>
-    <h5>Add document</h5>
+    <h3>Add document</h3>
     <input type="file" id="fichier" v-on:change="loadDocument()">
     <button v-on:click="addDocument()">add document</button> 
     <button v-on:click="checkDocument()">check document</button> 
@@ -104,12 +104,12 @@ var app = new Vue({
       this.contrat=await Contrat.connect(this.signer)      
 
     },
-    getRecentDocuments:async function(){
+/*    getRecentDocuments:async function(){
       for (let i = 0; i < 12; i++) {
         // this.passages[i] =  await this.contrat.passagesArtistes(i) 
       }
 
-    },
+    },*/
     loadDocument: async function(){
       let doc = document.getElementById("fichier").files[0]
       const reader = new FileReader()
@@ -124,6 +124,9 @@ var app = new Vue({
         if(this.lastDocument){
           let dochash = await this.contrat.hashData(this.lastDocument.toString())
           await this.contrat.addDocument(dochash)
+          this.recentDocuments.push(dochash)
+
+          console.log(this.recentDocuments)
         } 
       } catch (error) {
         console.log(error)
