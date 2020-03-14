@@ -1,161 +1,62 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title> Dapp Basique  </title>
+  <title> Elemental Anchoring Dapp  </title>
+  <style type="text/css">
+    .grid-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr ;
+    }
+  </style>
 </head>
 <body>
 
 <div id="app">
-  <h3>Bienvenue {{ nom }}</h3>
-  <button v-on:click="connectMetamask()">Connect to Metamask</button> 
-  <!-- <button v-on:click="connectLocally()">Connect to local node with browser wallet</button>  -->
+  <h1>Elemental Anchoring Dapp</h1>
+  <section v-show="!connected" class="grid-wrapper">
+    <button v-on:click="connectMetamask()">
+      Connect to Metamask 
+    </button> 
+    <button v-on:click="connectLocally()">
+      Connect to local node (port 8545) 
+   </button> 
+  </section>
   <section  v-show="connected">
-    <p v-if="network">Current Network : {{network.name}} (n° {{network.chainId}})</sup></p>
+    <h2>Informations</h2>
+    <div class="grid-wrapper">
+      <div v-if="network"><b>Network</b>:<br>
+        &nbsp; {{network.name}}, n° {{network.chainId}}</div>
+      <div><b>User</b>: <br>
+        &nbsp; {{ userAddress }} <br>
+        &nbsp; Balance: {{userBalance}} , Transactions count: {{userTransactionCount}}
+      </div>
+    </div>
 
-    <h3>Recently added</h3>
-    <ol>
-        <li v-for="document in recentDocuments">
-          {{ document }}
-        </li>
-    </ol>
-    <h3>Add document</h3>
+    <h2>Actions</h2>
     <input type="file" id="fichier" v-on:change="loadDocument()">
     <button v-on:click="addDocument()">add document</button> 
     <button v-on:click="checkDocument()">check document</button> 
     <p v-show="checkedDocDate"> {{checkedDocDate}}</p>
   </section>
+ 
+  <section v-show="recentDocuments[0]" >
+    <h2>Recently added documents</h2>
+    <ol>
+        <li v-for="document in recentDocuments">
+          {{ document }}
+        </li>
+    </ol>   
+  </section>
 
 
 </div>
-
-<script>
-
-var app = new Vue({
-  el: '#app',
-  data: {
-    nom: 'inconnu',
-    provider: {},
-    adresses: [],
-    network:"",
-    connected: false,
-    contractData:{},
-    contrat:{},
-    recentDocuments:[],
-    checkedDocDate:0,
-    lastDocument:{},
-    signer:{}
-  },
-  beforeCreate: function () {
-      fetch("/data.json")
-        .then(r => r.json())
-        .then(json => {
-          this.contractData=json;
-        });
-  },
-  methods:{
-    connectMetamask: async function() {
-      this.addresses = await ethereum.enable()
-      this.provider = await new ethers.providers.Web3Provider(ethereum)
-      this.nom = this.addresses[0]
-      this.signer = this.provider.getSigner(this.addresses[0]);
-      this.connected = true
-      this.getNetwork()
-      this.getContract()
-    },
-    connectLocally: async function(){
-      let defaultPassword = "abc"
-      this.provider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
-      let walletStorage="mywallet"
-      let jsonValue=localStorage.getItem(walletStorage)
-      if(jsonValue){
-        try{
-          // this.signer = await ethers.Wallet.fromEncryptedJson(jsonValue, defaultPassword)
-          this.signer = JSON.parse(jsonValue)
-          console.log("Loaded from local storage")
-        }catch(e){
-          console.error("Wallet loading error")
-        }
-      }else{
-        this.signer = ethers.Wallet.createRandom()
-        console.log("Generated new wallet")
-        // let json  =  await this.signer.encrypt(defaultPassword)
-        let json = JSON.stringify(this.signer)
-        localStorage.setItem(walletStorage,json)
-      } 
-      console.log(this.signer)
-      this.signer =  new ethers.Wallet(this.signer.privateKey, this.provider)
-      this.nom = this.signer.address 
-      this.connected = true
-      this.getNetwork()
-      this.getContract()
-    },
-    getNetwork: async function() {
-      this.network = await this.provider.getNetwork()  
-      console.log("Network: ", this.network) 
-    },
-    getContract: async function() {
-      console.log(this.contractData)
-      let Contrat=new ethers.Contract(this.contractData.address, this.contractData.interface.abi, this.provider)
-      this.contrat=await Contrat.connect(this.signer)      
-
-    },
-/*    getRecentDocuments:async function(){
-      for (let i = 0; i < 12; i++) {
-        // this.passages[i] =  await this.contrat.passagesArtistes(i) 
-      }
-
-    },*/
-    loadDocument: async function(){
-      let doc = document.getElementById("fichier").files[0]
-      const reader = new FileReader()
-      reader.readAsBinaryString(doc)
-      console.log(reader)
-      reader.onloadend = function() {
-        app.lastDocument = reader.result
-      }
-    },
-    addDocument:async function(){
-      try {
-        if(this.lastDocument){
-          let dochash = await this.contrat.hashData(this.lastDocument.toString())
-          await this.contrat.addDocument(dochash)
-          this.recentDocuments.push(dochash)
-
-          console.log(this.recentDocuments)
-        } 
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    checkDocument:async function(){
-      try {
-        let dochash = await this.contrat.hashData(this.lastDocument.toString())
-        let docDate = await this.contrat.getDate(dochash)
-        console.log("Doc date retrieved", docDate.toNumber())
-        if(docDate.toNumber()==0){
-          this.checkedDocDate = "Document not Found"
-        }else {
-          this.checkedDocDate = "Document added on " + new Date(docDate.toNumber()*1000).toLocaleDateString('en-GB', {  
-            month : 'short',
-            day : 'numeric',
-            year : 'numeric'
-          })        
-        }
-      } catch (error) {
-        this.checkedDocDate = "Not Found"
-        console.log(error)
-      }
-    }
-  }
-})
-  </script>
-
-  <script src="https://cdn.ethers.io/scripts/ethers-v4.min.js"></script>
+ <script src="app.js"></script>
+ <script src="https://cdn.ethers.io/scripts/ethers-v4.min.js"></script>
 
 </body>
 </html>

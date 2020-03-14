@@ -5,7 +5,6 @@ var fs = require('fs');
 async function deployAll() {
   var provider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
   const signer0 = provider.getSigner(0);
-  const signer1 = provider.getSigner(1);
   let factory = new ethers.ContractFactory(register.abi, register.bytecode, signer0);
   let contract = await factory.deploy();
 
