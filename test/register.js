@@ -1,12 +1,12 @@
 const chai = require('chai')
-const {createMockProvider, deployContract, getWallets,solidity} = require('ethereum-waffle')
+const {MockProvider, deployContract, solidity} = require('ethereum-waffle')
 const SimpleContractMock = require('../build/Register.json')
 const {expect} = chai
 
 chai.use(solidity)
 describe('Test Register', () => {
-  const provider = createMockProvider()
-  const [ wallet , walletTo ] = getWallets(provider)
+  const provider = new MockProvider()
+  const [ wallet , walletTo ] = provider.getWallets(provider)
   let contract
   beforeEach(async () => {
     contract = await deployContract(wallet, SimpleContractMock)

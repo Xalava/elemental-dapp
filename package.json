@@ -1,10 +1,10 @@
 {
   "name": "elemental-dapp",
-  "version": "0.1.0",
-  "description": "Elemental Anchoring dApp for timestamping document including best practises",
+  "version": "0.2.0",
+  "description": "Elemental Anchoring dApp for timestamping documents",
   "main": "index.js",
   "scripts": {
-    "test": "waffle && mocha",
+    "test": "npx waffle && mocha",
     "compile": "npx waffle",
     "deploy": "node deploy.js",
     "serve": "npx live-server dapp-vuejs",
@@ -19,6 +19,7 @@
     "ethers": "^4.0.45",
     "live-server": "^1.2.1",
     "mocha": "^6.2.2",
-    "openzeppelin-solidity": "^2.5.0"
+    "openzeppelin-solidity": "^2.5.0",
+    "solidity-docgen": "^0.3.14"
   }
 }
