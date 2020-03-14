@@ -2,7 +2,7 @@
 
 Simple document register in solidity with a web interface.
 
-This aims to be a boilerplate for educational purposes. It offers a full example of a decentralised application. Comments, issues and PR are welcome.
+This aims to be a boilerplate for educational purposes. It offers a full example of a decentralised application. Comments, issues and PR are welcome. 
 
 ![screenshot](screenshot.png)
 
@@ -34,3 +34,4 @@ Additional commands:
 - Deploy `npm run deploy`
 - Launch dev server `npm run serve`
 - Run tests `npm run test`
+- Generate documentation `npx solidity-docgen`
