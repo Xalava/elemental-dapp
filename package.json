@@ -1,7 +1,7 @@
 {
   "name": "elemental-dapp",
   "version": "0.1.0",
-  "description": "Basic dapp for timestamping document including best practises",
+  "description": "Elemental Anchoring dApp for timestamping document including best practises",
   "main": "index.js",
   "scripts": {
     "test": "waffle && mocha",
